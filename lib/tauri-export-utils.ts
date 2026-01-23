@@ -98,8 +98,8 @@ export async function exportBinary(
 
   try {
     if (!isTauriEnvironment()) {
-      // 浏览器环境 - 使用 ArrayBuffer 确保类型兼容
-      const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)]);
+      // 浏览器环境 - 使用类型断言确保兼容
+      const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer]);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
