@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
 import ExcelJS from 'exceljs'
 import { MenuTableItem } from '@/types'
+import { isTauriEnvironment, exportBinary } from './tauri-export-utils'
 
 export function exportMenuToExcel(data: MenuTableItem[], markupPercent: number) {
   // 定义列头
@@ -54,6 +55,7 @@ export function exportMenuToExcel(data: MenuTableItem[], markupPercent: number) 
 /**
  * 导出美团Excel - 将数据写入美团批量上架模板
  * 使用 exceljs 保持模板格式不变
+ * 支持浏览器和 Tauri 双环境
  */
 export async function exportMeituanExcel(data: MenuTableItem[]) {
   try {
@@ -80,45 +82,31 @@ export async function exportMeituanExcel(data: MenuTableItem[]) {
 
     data.forEach((item, index) => {
       const row = startRow + index
-
-      // B列 - 分类名称
       worksheet.getCell(`B${row}`).value = '新品上线'
-
-      // C列 - 商品名称
       worksheet.getCell(`C${row}`).value = item.name
-
-      // E列 - 价格（溢价后价格）
       worksheet.getCell(`E${row}`).value = Number(item.markupPrice.toFixed(2))
-
-      // F列 - 当前库存
       worksheet.getCell(`F${row}`).value = 50
-
-      // G列 - 每日库存
       worksheet.getCell(`G${row}`).value = 50
-
-      // H列 - 自动补足库存
       worksheet.getCell(`H${row}`).value = 1
     })
 
-    // 生成文件并下载
+    // 生成文件
     const buffer = await workbook.xlsx.writeBuffer()
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    })
+    const bytes = new Uint8Array(buffer)
 
     // 生成文件名（带时间戳）
     const timestamp = new Date().toISOString().slice(0, 10)
     const filename = `美团批量上架_${timestamp}.xlsx`
 
-    // 创建下载链接
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    // 使用双环境兼容的导出方式
+    await exportBinary(bytes, {
+      filename,
+      title: '保存美团批量上架文件'
+    }, [
+      { name: 'Excel 文件', extensions: ['xlsx', 'xls'] },
+      { name: '所有文件', extensions: ['*'] }
+    ])
+
   } catch (error) {
     console.error('导出美团Excel失败:', error)
     alert('导出失败: ' + (error instanceof Error ? error.message : '未知错误'))

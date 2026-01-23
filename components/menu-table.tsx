@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { exportMenuToExcel, exportMeituanExcel } from '@/lib/export-excel'
+import { copyToClipboard } from '@/lib/tauri-clipboard-utils'
 
 interface MenuTableProps {
   data: MenuTableItem[]
@@ -57,9 +58,11 @@ export function MenuTable({ data, markupPercent, className }: MenuTableProps) {
   const handleCopyColumn = useCallback(async (columnKey: ColumnKey) => {
     const columnData = getColumnData(columnKey)
     try {
-      await navigator.clipboard.writeText(columnData)
-      setCopiedColumn(columnKey)
-      setTimeout(() => setCopiedColumn(null), 2000)
+      const success = await copyToClipboard(columnData)
+      if (success) {
+        setCopiedColumn(columnKey)
+        setTimeout(() => setCopiedColumn(null), 2000)
+      }
     } catch (err) {
       console.error('Failed to copy:', err)
     }
