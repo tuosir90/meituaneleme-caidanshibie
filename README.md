@@ -43,7 +43,22 @@ npm install
 ```env
 YUNWU_API_KEY=your_api_key_here
 YUNWU_API_BASE=https://yunwu.ai/v1beta
+YUNWU_MODEL=gemini-3-flash-preview
 ```
+
+`YUNWU_MODEL` 用于控制当前调用的模型名称。未配置时，系统默认使用 `gemini-3-flash-preview`。
+
+### Vercel 环境变量
+
+如果项目部署在 Vercel，请在项目的 `Settings > Environment Variables` 中添加以下变量：
+
+```env
+YUNWU_API_KEY=your_api_key_here
+YUNWU_API_BASE=https://yunwu.ai/v1beta
+YUNWU_MODEL=gemini-3-flash-preview
+```
+
+之后只需要在 Vercel 修改 `YUNWU_MODEL`，就可以切换不同模型，无需改代码重新提交。
 
 ### 开发模式
 
@@ -99,6 +114,7 @@ npm start
 项目使用云雾 AI 提供的 Gemini API 服务：
 
 - **模型**: `gemini-3-flash-preview`
+- **环境变量**: 可通过 `YUNWU_MODEL` 覆盖默认模型
 - **端点**: `https://yunwu.ai/v1beta/models/gemini-3-flash-preview:generateContent`
 - **认证方式**: Query Parameter (`key`)
 - **请求格式**: JSON (Base64 图片 + 文本提示)

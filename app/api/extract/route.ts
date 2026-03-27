@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { resolveYunwuModel } from '@/lib/server/gemini-model.mjs'
 
 interface GeminiImagePart {
   inlineData: {
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
   // Read env vars inside function - use YUNWU_ prefix to avoid system env conflict
   const API_BASE = process.env.YUNWU_API_BASE || 'https://yunwu.ai/v1beta'
   const API_KEY = process.env.YUNWU_API_KEY || ''
+  const MODEL_NAME = resolveYunwuModel()
 
   try {
     // Debug: log API key (first/last 4 chars only)
@@ -166,7 +168,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use generateContent (non-streaming) endpoint for simpler response handling
-    const apiUrl = `${API_BASE}/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`
+    const apiUrl = `${API_BASE}/models/${MODEL_NAME}:generateContent?key=${API_KEY}`
     console.log('Calling API:', apiUrl.replace(API_KEY, '***'))
 
     // Create AbortController for timeout
